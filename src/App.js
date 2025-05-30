@@ -549,30 +549,56 @@ const blogPosts = [
 ];
 const AuthorizedAgent = () => {
   const [authorized, setAuthorized] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkIP = async () => {
       try {
-        const res = await fetch('/api/check-ip');
-        if (res.status === 200) {
+        setLoading(true);
+        const res = await fetch('/api/check-ip', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        const data = await res.json();
+        
+        if (res.status === 200 && data.allowed === true) {
           setAuthorized(true);
         } else {
           setAuthorized(false);
+          // Redirect to home page after 3 seconds
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 3000);
         }
       } catch (err) {
+        console.error('IP check failed:', err);
         setAuthorized(false);
+        // Redirect to home page after 3 seconds
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 3000);
+      } finally {
+        setLoading(false);
       }
     };
 
     checkIP();
+    
+    // Check IP every 30 seconds to ensure continued authorization
+    const interval = setInterval(checkIP, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
-  if (authorized === null) {
+  if (loading || authorized === null) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">Checking access...</p>
+          <p className="text-lg text-gray-600">Verifying access permissions...</p>
         </div>
       </div>
     );
@@ -584,13 +610,11 @@ const AuthorizedAgent = () => {
         <div className="text-center p-8 bg-white rounded-lg shadow-lg max-w-md">
           <div className="text-red-500 text-6xl mb-4">🚫</div>
           <h1 className="text-2xl font-bold text-red-600 mb-2">Access Denied</h1>
-          <p className="text-gray-600">You are not authorized to view this site.</p>
-          <button 
-            onClick={() => window.location.href = "/"}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-          >
-            Go to Home
-          </button>
+          <p className="text-gray-600 mb-4">You are not authorized to access this page.</p>
+          <p className="text-sm text-gray-500 mb-4">Redirecting to home page...</p>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{width: '100%'}}></div>
+          </div>
         </div>
       </div>
     );
