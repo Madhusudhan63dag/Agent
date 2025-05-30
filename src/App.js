@@ -571,15 +571,15 @@ const AuthorizedAgent = () => {
           // Redirect to home page after 3 seconds
           setTimeout(() => {
             window.location.href = "/";
-          }, 3000);
+          }, 10000);
         }
       } catch (err) {
         console.error('IP check failed:', err);
         setAuthorized(false);
-        // Redirect to home page after 3 seconds
+        // Redirect to home page after 10 seconds
         setTimeout(() => {
           window.location.href = "/";
-        }, 3000);
+        }, 10000);
       } finally {
         setLoading(false);
       }
