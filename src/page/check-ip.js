@@ -3,6 +3,7 @@ export default function handler(req, res) {
     const allowedIPs = [
       '192.168.1.41', // Replace with your actual allowed IP
       'fe80::6ae4:eef7:ed68:41f8%9', // localhost IPv6
+      "192.168.1.41"
     ];
   
     // Get client IP from various possible headers
