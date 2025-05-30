@@ -1,9 +1,8 @@
 export default function handler(req, res) {
     // Add multiple allowed IPs if needed
     const allowedIPs = [
-      '123.123.123.123', // Replace with your actual allowed IP
-      '::1', // localhost IPv6
-      '127.0.0.1', // localhost IPv4
+      '192.168.1.41', // Replace with your actual allowed IP
+      'fe80::6ae4:eef7:ed68:41f8%9', // localhost IPv6
     ];
   
     // Get client IP from various possible headers
