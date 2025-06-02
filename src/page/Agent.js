@@ -50,6 +50,23 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
         {
             id: "Sampoorn Arogya",
             name: "Sampoorn Arogya",
+        },
+        {
+            id: "Sri Anjaneya Shani Raksha",
+            name: "Sri Anjaneya Shani Raksha",
+        },
+        {
+            id: "Sree Astha Laxmi Dhana Akarsha Yantra",
+            name: "Sree Astha Laxmi Dhana Akarsha Yantra",
+        },
+        ,
+        {
+            id: "Dia Free",
+            name: "Dia Free",
+        },
+        {
+            id: "Shilajit",
+            name: "Shilajit",
         }
     ];
 
