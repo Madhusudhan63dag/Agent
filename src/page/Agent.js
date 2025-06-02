@@ -59,7 +59,6 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
             id: "Sree Astha Laxmi Dhana Akarsha Yantra",
             name: "Sree Astha Laxmi Dhana Akarsha Yantra",
         },
-        ,
         {
             id: "Dia Free",
             name: "Dia Free",
