@@ -16,7 +16,6 @@ const VALID_PROMO_CODE = "FLASH70";
 const Agent = ({ translations = {}, currentLang = 'en' }) => {
     const location = useLocation();
     const navigate = useNavigate();
-    
     const [orderDetails, setOrderDetails] = useState(null);
     const [formErrors, setFormErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -219,9 +218,10 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
             errors.totalOrderAmount = 'Order amount must be greater than 0';
         } else if (totalOrderAmount < 2500) {
             errors.totalOrderAmount = 'Negotiated price must be at least ₹2,500';
-        }
-        if (advanceAmount <= 0) {
+        }        if (advanceAmount <= 0) {
             errors.advanceAmount = 'Advance payment amount is required and must be greater than 0';
+        } else if (advanceAmount < 800) {
+            errors.advanceAmount = 'Advance payment amount must be at least ₹800';
         } else if (advanceAmount > totalOrderAmount) {
             errors.advanceAmount = 'Advance amount cannot exceed negotiated unit price';
         }
@@ -413,8 +413,7 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
                         <label className="block text-sm font-medium text-gray-700">
                             💳 Advance Payment Amount ({currentCurrency.currency}) *
-                        </label>
-                        <input
+                        </label>                        <input
                             type="number"
                             value={advanceAmount === 0 ? '' : advanceAmount}
                             onChange={(e) => {
@@ -428,11 +427,15 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
                                     }
                                 }
                             }}
-                            min="1"
+                            min="800"
                             step="1"
                             max={totalOrderAmount}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter advance amount (required)"
+                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                                advanceAmount > 0 && advanceAmount < 800 
+                                    ? 'border-red-500 text-red-600 bg-red-50' 
+                                    : 'border-gray-300'
+                            }`}
+                            placeholder="Enter advance amount (min ₹800)"
                             required
                         />
                         {formErrors.advanceAmount && (
@@ -440,9 +443,8 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
                         )}
                         <p className="text-xs text-gray-600">
                             💰 Advance: ₹{advanceAmount} | 🚚 Remaining per unit: ₹{(totalOrderAmount - advanceAmount)}
-                        </p>
-                        <p className="text-xs text-blue-600 font-medium">
-                            * Advance payment cannot exceed negotiated unit price (₹{totalOrderAmount})
+                        </p>                        <p className="text-xs text-blue-600 font-medium">
+                            * Advance payment must be at least ₹800 and cannot exceed negotiated unit price (₹{totalOrderAmount})
                         </p>
                     </div>
                 </div>
@@ -474,11 +476,10 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
                     </div>
                 </div>
 
-                {/* Generate Payment Button */}
-                <button
+                {/* Generate Payment Button */}                <button
                     type="submit"
                     onClick={handleSubmit}
-                    disabled={isSubmitting || !isRazorpayLoaded || advanceAmount <= 0 || orderPlaced}
+                    disabled={isSubmitting || !isRazorpayLoaded || advanceAmount < 800 || orderPlaced}
                     className={`w-full font-medium py-3 px-6 rounded-lg
                         transition-all duration-200 transform hover:scale-105
                         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
@@ -501,23 +502,20 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                             </svg>
                             Processing Payment...
-                        </div>
-                    ) : !isRazorpayLoaded ? (
+                        </div>                    ) : !isRazorpayLoaded ? (
                         'Loading Payment System...'
-                    ) : advanceAmount <= 0 ? (
-                        'Enter Advance Amount to Continue'
+                    ) : advanceAmount < 800 ? (
+                        'Enter Minimum ₹800 Advance to Continue'
                     ) : (
                         `🔗 Generate Payment Link for ₹${advanceAmount}`
                     )}
-                </button>
-
-                <p className="text-xs text-gray-500 text-center">
+                </button>                <p className="text-xs text-gray-500 text-center">
                     {orderPlaced 
                         ? "Order placed successfully! Form will reset in 2 seconds..."
                         : !isRazorpayLoaded 
                         ? "Loading payment system..."
-                        : advanceAmount <= 0
-                        ? "Please enter advance payment amount to proceed"
+                        : advanceAmount < 800
+                        ? "Please enter minimum ₹800 advance payment amount to proceed"
                         : "Customer will receive payment link via SMS/WhatsApp to pay advance amount"
                     }
                 </p>
