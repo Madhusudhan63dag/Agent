@@ -1,6 +1,12 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
 
-# Sitemap
+# Block internal or sensitive paths (adjust if needed)
+Disallow: /admin/
+Disallow: /api/
+Disallow: /checkout/
+
+# Sitemap (auto-updated by build script if SITE_URL changes)
 Sitemap: https://drjoints.in/sitemap/sitemap.xml
+

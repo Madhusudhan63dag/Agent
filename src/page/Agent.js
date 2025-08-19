@@ -35,6 +35,8 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
     const [agentName, setAgentName] = useState("");
     const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState("drjoints-original");
+    // 🔧 FIX: helper that returns the minimum negotiated price
+    const getMinPrice = (productId) => (productId === 'Beyond Slim' ? 1490 : 2500);
 
     // Add product options
     const productOptions = [
@@ -43,8 +45,10 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
             name: "Dr. Joints Original Pain Relief Oil"
         },
         {
-            id: "Beyond Slim",
-            name: "Beyond Slim"
+            id: 'Beyond Slim',
+            name: 'Beyond Slim',
+            price: 1490,
+            mrp: 2990
         },
         {
             id: "Sampoorn Arogya",
@@ -216,9 +220,9 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
         // Removed agentName validation since we removed the agent section
         if (totalOrderAmount <= 0) {
             errors.totalOrderAmount = 'Order amount must be greater than 0';
-        } else if (totalOrderAmount < 2500) {
-            errors.totalOrderAmount = 'Negotiated price must be at least ₹2,500';
-        }        if (advanceAmount <= 0) {
+        } else if (totalOrderAmount < getMinPrice(selectedProduct)) {
+            errors.totalOrderAmount = `Negotiated price must be at least ₹${getMinPrice(selectedProduct)}`;
+        } if (advanceAmount <= 0) {
             errors.advanceAmount = 'Advance payment amount is required and must be greater than 0';
         } else if (advanceAmount < 800) {
             errors.advanceAmount = 'Advance payment amount must be at least ₹800';
@@ -258,37 +262,33 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
         }
     };
 
-    // Add fallback translations to prevent undefined errors
-    const getTranslation = (path) => {
-        try {
-            const keys = path.split('.');
-            let result = translations[currentLang];
-            for (const key of keys) {
-                result = result?.[key];
-            }
-            return result || path; // Return the path as fallback if translation not found
-        } catch (error) {
-            return path; // Return the path as fallback if any error occurs
-        }
-    };
-
     // Add handler for product selection
     const handleProductChange = (e) => {
         const productId = e.target.value;
         setSelectedProduct(productId);
-        
+
         const selectedProductData = productOptions.find(p => p.id === productId);
+
         if (selectedProductData) {
-            setTotalOrderAmount(selectedProductData.price);
-            // Update order details
+            // 🔧 NEW: force unit price to obey the product’s own floor
+            const newUnitPrice = Math.max(
+            selectedProductData.price ?? totalOrderAmount,
+            getMinPrice(productId)          // 1,490 for Beyond Slim, otherwise 2,500
+            );
+            setTotalOrderAmount(newUnitPrice);
+
+            // keep order-details in sync
             setOrderDetails(prev => ({
-                ...prev,
-                productName: selectedProductData.name,
-                totalAmount: selectedProductData.price
+            ...prev,
+            productName: selectedProductData.name,
+            totalAmount: newUnitPrice
             }));
         }
-    };
 
+        // 🔧 NEW: clear any stale validation error and re-validate
+        setFormErrors(prev => ({ ...prev, totalOrderAmount: '' }));
+    };
+    
     // Update renderOrderSummary to include product dropdown
     const renderOrderSummary = () => (
         <div className="bg-white rounded-lg shadow-lg p-6">
@@ -347,11 +347,12 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
                                         }
                                     }
                                 }}
-                                min="2500"
+                                min={getMinPrice(selectedProduct)}
                                 step="0.01"
                                 className={`flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                                    totalOrderAmount > 0 && totalOrderAmount < 2500 
-                                        ? 'border-red-500 text-red-600 bg-red-50' 
+                                    totalOrderAmount > 0 &&
+                                    totalOrderAmount < getMinPrice(selectedProduct)
+                                        ? 'border-red-500 text-red-600 bg-red-50'
                                         : 'border-gray-300'
                                 }`}
                                 placeholder="Enter negotiated price per unit (min ₹2,500)"
@@ -373,11 +374,14 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
                             <p className="text-red-500 text-xs">{formErrors.totalOrderAmount}</p>
                         )}
                         <p className={`text-xs ${
-                            totalOrderAmount > 0 && totalOrderAmount < 2500 
-                                ? 'text-red-600' 
-                                : 'text-green-600'
+                            totalOrderAmount > 0 && totalOrderAmount < getMinPrice(selectedProduct)
+                                ? 'border-red-500 text-red-600 bg-red-50'
+                                : 'border-gray-300'
                         }`}>
-                            MRP: ₹{productOptions.find(p => p.id === selectedProduct)?.mrp} | Current: ₹{totalOrderAmount} | Discount: ₹{productOptions.find(p => p.id === selectedProduct)?.price - totalOrderAmount} | Min Required: ₹2,500
+                            MRP: ₹{productOptions.find(p => p.id === selectedProduct)?.mrp}
+                            | Current: ₹{totalOrderAmount}
+                            | Discount: ₹{productOptions.find(p => p.id === selectedProduct)?.price - totalOrderAmount}
+                            | Min Required: ₹{getMinPrice(selectedProduct)}
                         </p>
                     </div>
                     
@@ -534,16 +538,6 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
                 ...prev,
                 [name]: ''
             }));
-        }
-    };
-
-    const handlePromoCodeApply = () => {
-        if (promoCode === VALID_PROMO_CODE) {
-            setIsPromoApplied(true);
-            setFormErrors(prev => ({ ...prev, promoCode: '' }));
-        } else {
-            setIsPromoApplied(false);
-            setFormErrors(prev => ({ ...prev, promoCode: 'Invalid promo code' }));
         }
     };
 

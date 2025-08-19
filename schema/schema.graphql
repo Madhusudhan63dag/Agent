@@ -1,0 +1,668 @@
+# GraphQL Schema for Agent E-commerce System
+
+scalar Date
+scalar DateTime
+scalar JSON
+
+# Enums
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DISCONTINUED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PARTIAL
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMode {
+  ONLINE
+  COD
+  PARTIAL
+}
+
+enum ShippingStatus {
+  PENDING
+  PROCESSED
+  SHIPPED
+  IN_TRANSIT
+  DELIVERED
+  RETURNED
+}
+
+enum EmailType {
+  ORDER_CONFIRMATION
+  SHIPPING_UPDATE
+  DELIVERY_CONFIRMATION
+  ABANDONED_CART
+  FOLLOW_UP
+}
+
+enum EmailStatus {
+  SENT
+  FAILED
+  BOUNCED
+}
+
+enum AddressType {
+  SHIPPING
+  BILLING
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+enum AgentStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum PromoStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+}
+
+# Types
+type Customer {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String!
+  country: String!
+  companyName: String
+  status: CustomerStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  orders: [Order!]!
+  addresses: [CustomerAddress!]!
+}
+
+type Product {
+  id: ID!
+  name: String!
+  description: String
+  basePrice: Float!
+  minPrice: Float!
+  currency: String!
+  category: String
+  status: ProductStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  orders: [Order!]!
+}
+
+type Order {
+  id: ID!
+  orderNumber: String!
+  customer: Customer!
+  agent: Agent
+  product: Product!
+  quantity: Int!
+  unitPrice: Float!
+  totalAmount: Float!
+  advanceAmount: Float!
+  discountPercentage: Float!
+  discountAmount: Float!
+  finalAmount: Float!
+  currency: String!
+  paymentMode: PaymentMode!
+  paymentStatus: PaymentStatus!
+  orderStatus: OrderStatus!
+  promoCode: String
+  isPromoApplied: Boolean!
+  callNotes: String
+  customerSource: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  items: [OrderItem!]!
+  payments: [Payment!]!
+  shippingDetails: ShippingDetails
+  emailLogs: [EmailLog!]!
+}
+
+type OrderItem {
+  id: ID!
+  order: Order!
+  product: Product!
+  quantity: Int!
+  unitPrice: Float!
+  totalPrice: Float!
+  createdAt: DateTime!
+}
+
+type CustomerAddress {
+  id: ID!
+  customer: Customer!
+  type: AddressType!
+  firstName: String
+  lastName: String
+  companyName: String
+  streetAddress: String!
+  apartment: String
+  city: String!
+  state: String
+  pincode: String!
+  country: String!
+  phone: String
+  isDefault: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Payment {
+  id: ID!
+  order: Order!
+  paymentId: String!
+  razorpayOrderId: String
+  razorpayPaymentId: String
+  razorpaySignature: String
+  amount: Float!
+  currency: String!
+  paymentMethod: String
+  paymentStatus: PaymentStatus!
+  gatewayResponse: JSON
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Agent {
+  id: ID!
+  name: String!
+  email: String!
+  phone: String!
+  employeeId: String
+  department: String
+  status: AgentStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  orders: [Order!]!
+}
+
+type PromoCode {
+  id: ID!
+  code: String!
+  description: String
+  discountType: DiscountType!
+  discountValue: Float!
+  minOrderAmount: Float!
+  maxDiscountAmount: Float
+  usageLimit: Int
+  usedCount: Int!
+  validFrom: Date
+  validUntil: Date
+  status: PromoStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ShippingDetails {
+  id: ID!
+  order: Order!
+  shiprocketOrderId: String
+  shipmentId: String
+  awbNumber: String
+  courierName: String
+  trackingUrl: String
+  shippingStatus: ShippingStatus!
+  shippedAt: DateTime
+  deliveredAt: DateTime
+  trackingData: JSON
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type EmailLog {
+  id: ID!
+  order: Order
+  emailType: EmailType!
+  recipientEmail: String!
+  subject: String
+  emailBody: String
+  status: EmailStatus!
+  sentAt: DateTime!
+  errorMessage: String
+}
+
+# Input Types
+input CustomerInput {
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String!
+  country: String!
+  companyName: String
+}
+
+input ProductInput {
+  id: String!
+  name: String!
+  description: String
+  basePrice: Float!
+  minPrice: Float!
+  currency: String!
+  category: String
+  status: ProductStatus!
+}
+
+input CustomerAddressInput {
+  customerId: ID!
+  type: AddressType!
+  firstName: String
+  lastName: String
+  companyName: String
+  streetAddress: String!
+  apartment: String
+  city: String!
+  state: String
+  pincode: String!
+  country: String!
+  phone: String
+  isDefault: Boolean!
+}
+
+input OrderInput {
+  customerId: ID!
+  agentId: ID
+  productId: ID!
+  quantity: Int!
+  unitPrice: Float!
+  totalAmount: Float!
+  advanceAmount: Float!
+  paymentMode: PaymentMode!
+  promoCode: String
+  callNotes: String
+  customerSource: String
+}
+
+input PaymentInput {
+  orderId: ID!
+  paymentId: String!
+  razorpayOrderId: String
+  razorpayPaymentId: String
+  razorpaySignature: String
+  amount: Float!
+  currency: String!
+  paymentMethod: String
+  paymentStatus: PaymentStatus!
+  gatewayResponse: JSON
+}
+
+input PromoCodeInput {
+  code: String!
+  description: String
+  discountType: DiscountType!
+  discountValue: Float!
+  minOrderAmount: Float!
+  maxDiscountAmount: Float
+  usageLimit: Int
+  validFrom: Date
+  validUntil: Date
+  status: PromoStatus!
+}
+
+input AgentInput {
+  name: String!
+  email: String!
+  phone: String!
+  employeeId: String
+  department: String
+  status: AgentStatus!
+}
+
+input ShippingDetailsInput {
+  orderId: ID!
+  shiprocketOrderId: String
+  shipmentId: String
+  awbNumber: String
+  courierName: String
+  trackingUrl: String
+  shippingStatus: ShippingStatus!
+  shippedAt: DateTime
+  deliveredAt: DateTime
+  trackingData: JSON
+}
+
+input EmailLogInput {
+  orderId: ID
+  emailType: EmailType!
+  recipientEmail: String!
+  subject: String
+  emailBody: String
+  status: EmailStatus!
+  errorMessage: String
+}
+
+# Filter and Search Inputs
+input OrderFilter {
+  customerId: ID
+  agentId: ID
+  productId: ID
+  orderStatus: OrderStatus
+  paymentStatus: PaymentStatus
+  paymentMode: PaymentMode
+  startDate: DateTime
+  endDate: DateTime
+  minAmount: Float
+  maxAmount: Float
+  promoCode: String
+  customerEmail: String
+  customerPhone: String
+  orderNumber: String
+}
+
+input CustomerFilter {
+  status: CustomerStatus
+  country: String
+  email: String
+  phone: String
+  startDate: DateTime
+  endDate: DateTime
+}
+
+input ProductFilter {
+  status: ProductStatus
+  category: String
+  minPrice: Float
+  maxPrice: Float
+}
+
+input PaginationInput {
+  limit: Int = 10
+  offset: Int = 0
+}
+
+input SortInput {
+  field: String!
+  direction: SortDirection!
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+# Response Types
+type OrderConnection {
+  edges: [OrderEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type OrderEdge {
+  node: Order!
+  cursor: String!
+}
+
+type CustomerConnection {
+  edges: [CustomerEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type CustomerEdge {
+  node: Customer!
+  cursor: String!
+}
+
+type ProductConnection {
+  edges: [ProductEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ProductEdge {
+  node: Product!
+  cursor: String!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type DashboardStats {
+  totalOrders: Int!
+  totalRevenue: Float!
+  avgOrderValue: Float!
+  totalCustomers: Int!
+  pendingOrders: Int!
+  completedOrders: Int!
+  failedPayments: Int!
+  todayOrders: Int!
+  todayRevenue: Float!
+  monthlyGrowth: Float!
+}
+
+type SalesAnalytics {
+  period: String!
+  totalOrders: Int!
+  totalRevenue: Float!
+  avgOrderValue: Float!
+  topProducts: [ProductSales!]!
+  paymentModeDistribution: [PaymentModeStats!]!
+  orderStatusDistribution: [OrderStatusStats!]!
+}
+
+type ProductSales {
+  product: Product!
+  totalSales: Int!
+  totalRevenue: Float!
+}
+
+type PaymentModeStats {
+  paymentMode: PaymentMode!
+  count: Int!
+  percentage: Float!
+}
+
+type OrderStatusStats {
+  status: OrderStatus!
+  count: Int!
+  percentage: Float!
+}
+
+type MutationResponse {
+  success: Boolean!
+  message: String!
+  code: String
+}
+
+type CreateOrderResponse {
+  success: Boolean!
+  message: String!
+  order: Order
+  code: String
+}
+
+type PaymentVerificationResponse {
+  success: Boolean!
+  message: String!
+  orderId: String
+  paymentId: String
+  code: String
+}
+
+type EmailResponse {
+  success: Boolean!
+  message: String!
+  emailLog: EmailLog
+  code: String
+}
+
+# Queries
+type Query {
+  # Customer queries
+  customer(id: ID!): Customer
+  customers(
+    filter: CustomerFilter
+    pagination: PaginationInput
+    sort: SortInput
+  ): CustomerConnection!
+  
+  # Product queries
+  product(id: ID!): Product
+  products(
+    filter: ProductFilter
+    pagination: PaginationInput
+    sort: SortInput
+  ): ProductConnection!
+  
+  # Order queries
+  order(id: ID!): Order
+  orders(
+    filter: OrderFilter
+    pagination: PaginationInput
+    sort: SortInput
+  ): OrderConnection!
+  
+  # Agent queries
+  agent(id: ID!): Agent
+  agents(
+    filter: AgentFilter
+    pagination: PaginationInput
+    sort: SortInput
+  ): [Agent!]!
+  
+  # Promo code queries
+  promoCode(code: String!): PromoCode
+  promoCodes(
+    filter: PromoCodeFilter
+    pagination: PaginationInput
+    sort: SortInput
+  ): [PromoCode!]!
+  
+  # Analytics queries
+  dashboardStats: DashboardStats!
+  salesAnalytics(
+    startDate: DateTime!
+    endDate: DateTime!
+    groupBy: String
+  ): SalesAnalytics!
+  
+  # Search queries
+  searchOrders(query: String!): [Order!]!
+  searchCustomers(query: String!): [Customer!]!
+  searchProducts(query: String!): [Product!]!
+  
+  # Shipping queries
+  trackShipment(shipmentId: String!): ShippingDetails
+  
+  # Email queries
+  emailLogs(
+    orderId: ID
+    emailType: EmailType
+    startDate: DateTime
+    endDate: DateTime
+  ): [EmailLog!]!
+}
+
+# Mutations
+type Mutation {
+  # Customer mutations
+  createCustomer(input: CustomerInput!): Customer!
+  updateCustomer(id: ID!, input: CustomerInput!): Customer!
+  deleteCustomer(id: ID!): MutationResponse!
+  
+  # Product mutations
+  createProduct(input: ProductInput!): Product!
+  updateProduct(id: ID!, input: ProductInput!): Product!
+  deleteProduct(id: ID!): MutationResponse!
+  
+  # Order mutations
+  createOrder(input: OrderInput!): CreateOrderResponse!
+  updateOrder(id: ID!, input: OrderInput!): Order!
+  cancelOrder(id: ID!, reason: String): MutationResponse!
+  
+  # Customer address mutations
+  createCustomerAddress(input: CustomerAddressInput!): CustomerAddress!
+  updateCustomerAddress(id: ID!, input: CustomerAddressInput!): CustomerAddress!
+  deleteCustomerAddress(id: ID!): MutationResponse!
+  
+  # Payment mutations
+  createPayment(input: PaymentInput!): Payment!
+  verifyPayment(
+    razorpayOrderId: String!
+    razorpayPaymentId: String!
+    razorpaySignature: String!
+  ): PaymentVerificationResponse!
+  
+  # Promo code mutations
+  createPromoCode(input: PromoCodeInput!): PromoCode!
+  updatePromoCode(id: ID!, input: PromoCodeInput!): PromoCode!
+  deletePromoCode(id: ID!): MutationResponse!
+  validatePromoCode(code: String!, orderAmount: Float!): PromoCode
+  
+  # Agent mutations
+  createAgent(input: AgentInput!): Agent!
+  updateAgent(id: ID!, input: AgentInput!): Agent!
+  deleteAgent(id: ID!): MutationResponse!
+  
+  # Shipping mutations
+  createShippingDetails(input: ShippingDetailsInput!): ShippingDetails!
+  updateShippingDetails(id: ID!, input: ShippingDetailsInput!): ShippingDetails!
+  createShiprocketOrder(orderId: ID!): MutationResponse!
+  
+  # Email mutations
+  sendOrderConfirmation(orderId: ID!): EmailResponse!
+  sendShippingUpdate(orderId: ID!): EmailResponse!
+  sendDeliveryConfirmation(orderId: ID!): EmailResponse!
+  sendAbandonedCartEmail(customerId: ID!): EmailResponse!
+  sendFollowUpEmail(orderId: ID!): EmailResponse!
+  
+  # Razorpay mutations
+  createRazorpayOrder(
+    amount: Float!
+    currency: String
+    receipt: String
+    notes: JSON
+  ): JSON!
+}
+
+# Subscriptions
+type Subscription {
+  orderCreated: Order!
+  orderUpdated(orderId: ID!): Order!
+  paymentUpdated(orderId: ID!): Payment!
+  shippingUpdated(orderId: ID!): ShippingDetails!
+  emailSent(orderId: ID!): EmailLog!
+}
+
+# Additional filter inputs
+input AgentFilter {
+  status: AgentStatus
+  department: String
+  employeeId: String
+}
+
+input PromoCodeFilter {
+  status: PromoStatus
+  discountType: DiscountType
+  validFrom: Date
+  validUntil: Date
+}

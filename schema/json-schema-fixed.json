@@ -1,0 +1,480 @@
+{
+    "title": "Agent E-commerce System Schema Collection",
+    "description": "Collection of JSON schemas for the Agent E-commerce system",
+    "schemas": {
+        "Customer": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "title": "Customer",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "Unique customer identifier"
+                },
+                "firstName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Customer's first name"
+                },
+                "lastName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Customer's last name"
+                },
+                "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Customer's email address"
+                },
+                "phone": {
+                    "type": "string",
+                    "pattern": "^[0-9]{10}$",
+                    "description": "Customer's 10-digit phone number"
+                },
+                "country": {
+                    "type": "string",
+                    "default": "India",
+                    "description": "Customer's country"
+                },
+                "companyName": {
+                    "type": "string",
+                    "description": "Optional company name"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "inactive",
+                        "blocked"
+                    ],
+                    "default": "active"
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            },
+            "required": [
+                "firstName",
+                "lastName",
+                "email",
+                "phone"
+            ],
+            "additionalProperties": false
+        },
+        "Product": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "title": "Product",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique product identifier"
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "description": "Product name"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Product description"
+                },
+                "basePrice": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Base price of the product"
+                },
+                "minPrice": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Minimum allowed price"
+                },
+                "currency": {
+                    "type": "string",
+                    "default": "INR",
+                    "description": "Currency code"
+                },
+                "category": {
+                    "type": "string",
+                    "description": "Product category"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "inactive",
+                        "discontinued"
+                    ],
+                    "default": "active"
+                }
+            },
+            "required": [
+                "id",
+                "name",
+                "basePrice"
+            ],
+            "additionalProperties": false
+        },
+        "Order": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "title": "Order",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "Unique order identifier"
+                },
+                "orderNumber": {
+                    "type": "string",
+                    "description": "Human-readable order number"
+                },
+                "customerId": {
+                    "type": "integer",
+                    "description": "Customer ID"
+                },
+                "agentId": {
+                    "type": "integer",
+                    "description": "Agent ID who processed the order"
+                },
+                "productId": {
+                    "type": "integer",
+                    "description": "Product ID"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Quantity ordered"
+                },
+                "unitPrice": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Price per unit"
+                },
+                "totalAmount": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Total order amount"
+                },
+                "advanceAmount": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Advance payment amount"
+                },
+                "discountPercentage": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Discount percentage applied"
+                },
+                "discountAmount": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Discount amount"
+                },
+                "finalAmount": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Final amount after discount"
+                },
+                "currency": {
+                    "type": "string",
+                    "default": "INR",
+                    "description": "Currency code"
+                },
+                "paymentMode": {
+                    "type": "string",
+                    "enum": [
+                        "online",
+                        "cod",
+                        "partial"
+                    ],
+                    "description": "Payment mode"
+                },
+                "paymentStatus": {
+                    "type": "string",
+                    "enum": [
+                        "pending",
+                        "partial",
+                        "paid",
+                        "failed",
+                        "refunded"
+                    ],
+                    "default": "pending"
+                },
+                "orderStatus": {
+                    "type": "string",
+                    "enum": [
+                        "pending",
+                        "confirmed",
+                        "processing",
+                        "shipped",
+                        "delivered",
+                        "cancelled"
+                    ],
+                    "default": "pending"
+                },
+                "promoCode": {
+                    "type": "string",
+                    "description": "Applied promo code"
+                },
+                "isPromoApplied": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "callNotes": {
+                    "type": "string",
+                    "description": "Agent's call notes"
+                },
+                "customerSource": {
+                    "type": "string",
+                    "description": "Source of customer acquisition"
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            },
+            "required": [
+                "customerId",
+                "productId",
+                "quantity",
+                "unitPrice",
+                "totalAmount",
+                "advanceAmount",
+                "paymentMode"
+            ],
+            "additionalProperties": false
+        },
+        "CustomerAddress": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "title": "CustomerAddress",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "Unique address identifier"
+                },
+                "customerId": {
+                    "type": "integer",
+                    "description": "Customer ID"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "shipping",
+                        "billing"
+                    ],
+                    "description": "Address type"
+                },
+                "firstName": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "lastName": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "companyName": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "streetAddress": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Street address"
+                },
+                "apartment": {
+                    "type": "string",
+                    "description": "Apartment/Suite number"
+                },
+                "city": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "City"
+                },
+                "state": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "State/Province"
+                },
+                "pincode": {
+                    "type": "string",
+                    "pattern": "^[0-9]{6}$",
+                    "description": "6-digit pincode"
+                },
+                "country": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Country"
+                },
+                "phone": {
+                    "type": "string",
+                    "pattern": "^[0-9]{10}$",
+                    "description": "10-digit phone number"
+                },
+                "isDefault": {
+                    "type": "boolean",
+                    "default": false
+                }
+            },
+            "required": [
+                "customerId",
+                "type",
+                "streetAddress",
+                "city",
+                "pincode",
+                "country"
+            ],
+            "additionalProperties": false
+        },
+        "Payment": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "title": "Payment",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "Unique payment identifier"
+                },
+                "orderId": {
+                    "type": "integer",
+                    "description": "Associated order ID"
+                },
+                "paymentId": {
+                    "type": "string",
+                    "description": "Payment gateway payment ID"
+                },
+                "razorpayOrderId": {
+                    "type": "string",
+                    "description": "Razorpay order ID"
+                },
+                "razorpayPaymentId": {
+                    "type": "string",
+                    "description": "Razorpay payment ID"
+                },
+                "razorpaySignature": {
+                    "type": "string",
+                    "description": "Razorpay signature for verification"
+                },
+                "amount": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Payment amount"
+                },
+                "currency": {
+                    "type": "string",
+                    "default": "INR",
+                    "description": "Currency code"
+                },
+                "paymentMethod": {
+                    "type": "string",
+                    "description": "Payment method used"
+                },
+                "paymentStatus": {
+                    "type": "string",
+                    "enum": [
+                        "pending",
+                        "success",
+                        "failed",
+                        "cancelled"
+                    ],
+                    "default": "pending"
+                },
+                "gatewayResponse": {
+                    "type": "object",
+                    "description": "Raw gateway response"
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            },
+            "required": [
+                "orderId",
+                "paymentId",
+                "amount"
+            ],
+            "additionalProperties": false
+        },
+        "AgentFormData": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "title": "AgentFormData",
+            "properties": {
+                "firstName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                },
+                "lastName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                },
+                "companyName": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "country": {
+                    "type": "string",
+                    "default": "India"
+                },
+                "streetAddress": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "apartment": {
+                    "type": "string"
+                },
+                "townCity": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "pincode": {
+                    "type": "string",
+                    "pattern": "^[0-9]{6}$"
+                },
+                "phone": {
+                    "type": "string",
+                    "pattern": "^[0-9]{10}$"
+                },
+                "paymentMode": {
+                    "type": "string",
+                    "enum": [
+                        "online",
+                        "cod",
+                        "partial"
+                    ]
+                }
+            },
+            "required": [
+                "firstName",
+                "lastName",
+                "streetAddress",
+                "townCity",
+                "pincode",
+                "phone",
+                "paymentMode"
+            ],
+            "additionalProperties": false
+        }
+    }
+}
