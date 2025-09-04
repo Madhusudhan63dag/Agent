@@ -77,6 +77,10 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
         {
             id: "Dhanalaxmi Yantra",
             name: "Dhanalaxmi Yantra",
+        },
+        {
+            id: "Karungali mala",
+            name: "Karungali mala",
         }
     ];
 
@@ -203,6 +207,7 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
 
     const validateForm = () => {
         const errors = {};
+        if (!agentName.trim()) errors.agentName = 'Agent name is required';
         if (!formData.firstName.trim()) errors.firstName = 'Customer first name is required';
         if (!formData.lastName.trim()) errors.lastName = 'Customer last name is required';
         if (!formData.phone.trim()) {
@@ -483,7 +488,7 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
                 {/* Generate Payment Button */}                <button
                     type="submit"
                     onClick={handleSubmit}
-                    disabled={isSubmitting || !isRazorpayLoaded || advanceAmount < 800 || orderPlaced}
+                    disabled={isSubmitting || !isRazorpayLoaded || advanceAmount < 800 || orderPlaced || !agentName.trim()}
                     className={`w-full font-medium py-3 px-6 rounded-lg
                         transition-all duration-200 transform hover:scale-105
                         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
@@ -718,8 +723,9 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
     const sendOrderConfirmationEmail = async (paymentId = null) => {
         try {
             const emailData = {
-                customerEmail: `${formData.firstName}.${formData.lastName}@drjoints.com`, // Use a default email format
+                customerEmail: `${formData.firstName}.${formData.lastName}@drjoints.com`,
                 productName: selectedProduct,
+                agentName, // NEW: send agent name explicitly
                 orderDetails: {
                     orderNumber,
                     productName: orderDetails.productName,
@@ -728,7 +734,8 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
                     Advance_Amount: advanceAmount.toFixed(2),
                     currency: currentCurrency.symbol,
                     paymentMethod: 'Partial Payment (Advance + Remaining)',
-                    paymentId: paymentId || 'Advance Payment'
+                    paymentId: paymentId || 'Advance Payment',
+                    agentName // optional redundancy
                 },
                 customerDetails: {
                     firstName: formData.firstName,
@@ -738,7 +745,7 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
                     address: formData.streetAddress,
                     apartment: formData.apartment,
                     city: formData.townCity,
-                    state: '', // Add state if needed
+                    state: '',
                     zip: formData.pincode,
                     country: formData.country
                 }
@@ -746,9 +753,7 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
 
             const emailResponse = await fetch(`${API_BASE_URL}/agent_to_customer`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(emailData)
             });
 
@@ -809,7 +814,7 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
                 {label}{required && <span className="text-red-500">*</span>}
             </label>
             <input
-                type={type}s
+                type={type}
                 name={name}
                 value={formData[name]}
                 onChange={handleInputChange}
@@ -866,6 +871,23 @@ const Agent = ({ translations = {}, currentLang = 'en' }) => {
                             <div className="grid grid-cols-2 gap-4">
                                 {renderFormField("townCity", "City")}
                                 {renderFormField("pincode", "Pin Code", "text")}
+                            </div>
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Agent Name <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="agentName"
+                                    value={agentName}
+                                    onChange={(e) => setAgentName(e.target.value)}
+                                    required
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Enter agent name"
+                                />
+                                {formErrors.agentName && (
+                                    <p className="text-red-500 text-sm">{formErrors.agentName}</p>
+                                )}
                             </div>
                         </div>
                     </div>
