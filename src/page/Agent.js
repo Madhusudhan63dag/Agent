@@ -3,15 +3,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from '@formspree/react';
 
 // API base URL that works in both development and production environments
-const API_BASE_URL = 'https://agent-api-24mf.onrender.com' // Use your actual production backend URL https://agent-api-24mf.onrender.com
-
+const API_BASE_URL = 'https://agent-api-phi.vercel.app' // Use your actual production backend URL
+// https://agent-api-phi.vercel.app
 const COUNTRY_CURRENCY_MAP = {
     'India': { currency: 'INR', symbol: '₹', rate: 1 }
 };
 
 const DEFAULT_COUNTRY = 'India';
 const DEFAULT_CURRENCY = COUNTRY_CURRENCY_MAP[DEFAULT_COUNTRY];
-const VALID_PROMO_CODE = "FLASH70";
 
 const Agent = ({ translations = {}, currentLang = 'en' }) => {
     const location = useLocation();
